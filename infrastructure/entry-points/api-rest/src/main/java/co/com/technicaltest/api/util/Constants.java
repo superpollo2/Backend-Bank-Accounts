@@ -12,5 +12,6 @@ public class Constants {
     public static final String CHECK_BALANCE = "checkBalance";
     public static final String TRANSFERS = "transfers";
     public static final String WITHDRAWALS = "withdrawals";
+    public static final String DEPOSIT = "deposit";
     public static final String HISTORICAL_RECORDS_TRANSFERS = "historicalRecordsTransfers";
 }

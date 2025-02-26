@@ -1,8 +1,13 @@
 package co.com.technicaltest.api;
+import co.com.technicaltest.api.service.ApiRestService;
 import co.com.technicaltest.api.util.Constants;
+import co.com.technicaltest.model.account.transferOperations.TransferOperationHistoryPage;
+import co.com.technicaltest.model.transferfounds.TransferOperation;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,6 +31,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Log4j2
 public class ApiRest {
 
+    private final ApiRestService apiRestService;
+
     @PostMapping(path = Constants.NEW_USER)
     public void createUser(){
 
@@ -46,13 +53,19 @@ public class ApiRest {
 
     }
 
+    @PostMapping(path = Constants.DEPOSIT)
+    public void depositMoney(){
+
+    }
+
     @GetMapping(path = Constants.CHECK_BALANCE)
     public void getBalance(){
 
     }
 
     @GetMapping(path = Constants.HISTORICAL_RECORDS_TRANSFERS)
-    public void historicalRecordsTransfers(){
+    public ResponseEntity<Page<TransferOperation>> historicalTransferOperations(TransferOperationHistoryPage transferOperationHistoryPage){
+        return apiRestService.historicalTransferOperations(transferOperationHistoryPage);
 
     }
 
