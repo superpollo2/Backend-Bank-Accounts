@@ -10,6 +10,8 @@ import co.com.technicaltest.model.enums.TransactionType;
 import co.com.technicaltest.model.transferfounds.TransferOperation;
 import co.com.technicaltest.model.transferfounds.gateways.TransferFoundsGateway;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 import java.util.Random;
@@ -71,6 +73,10 @@ public class AccountUseCase {
                 .accountNumber(generateAccountNumber())
                 .build();
         return accountGateway.createAccount(account);
+    }
+
+    public Page<TransferOperation> getHistoricalTransferOperations(String accountNumber, Pageable pageable){
+        return transferFoundsGateway.getHistoricalTransferOperations(accountNumber,pageable);
     }
 
     private String generateAccountNumber() {

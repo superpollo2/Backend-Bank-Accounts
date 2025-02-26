@@ -9,7 +9,7 @@ public class Constants {
     public static final String PRINCIPAL_PATH = "bankAccounts/";
     public static final String NEW_USER = "newUser";
     public static final String NEW_ACCOUNT = "newAccount";
-    public static final String CHECK_BALANCE = "checkBalance";
+    public static final String CHECK_BALANCE = "checkBalance/{accountNumber}";
     public static final String TRANSFERS = "transfers";
     public static final String WITHDRAWALS = "withdrawals";
     public static final String DEPOSIT = "deposit";

@@ -1,17 +1,20 @@
 package co.com.technicaltest.api;
 import co.com.technicaltest.api.service.ApiRestService;
 import co.com.technicaltest.api.util.Constants;
+import co.com.technicaltest.model.account.Account;
+import co.com.technicaltest.model.account.AccountBalance;
+import co.com.technicaltest.model.account.NewAccount;
+import co.com.technicaltest.model.account.transferOperations.TransferFunds;
 import co.com.technicaltest.model.account.transferOperations.TransferOperationHistoryPage;
+import co.com.technicaltest.model.account.transferOperations.WithdrawalsFunds;
 import co.com.technicaltest.model.transferfounds.TransferOperation;
+import co.com.technicaltest.model.user.User;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * API Rest controller.
@@ -34,45 +37,40 @@ public class ApiRest {
     private final ApiRestService apiRestService;
 
     @PostMapping(path = Constants.NEW_USER)
-    public void createUser(){
-
+    public User createUser(User user){
+        return apiRestService.createUser(user);
     }
 
     @PostMapping(path = Constants.NEW_ACCOUNT)
-    public void createAccount(){
-
+    public Account createAccount(NewAccount newAccount){
+        return apiRestService.createAccount(newAccount);
     }
 
     @PostMapping(path = Constants.TRANSFERS)
-    public void transferMoney(){
-
+    public AccountBalance transferMoney(TransferFunds transferFunds){
+        return apiRestService.transferMoney(transferFunds);
     }
 
     @PostMapping(path = Constants.WITHDRAWALS)
-    public void withdrawalMoney(){
-
+    public AccountBalance withdrawalMoney(WithdrawalsFunds withdrawalsFunds){
+        return apiRestService.withdrawalMoney(withdrawalsFunds);
     }
 
     @PostMapping(path = Constants.DEPOSIT)
-    public void depositMoney(){
-
+    public AccountBalance depositMoney(WithdrawalsFunds depositFunds){
+        return apiRestService.depositMoney(depositFunds);
     }
 
     @GetMapping(path = Constants.CHECK_BALANCE)
-    public void getBalance(){
+    public AccountBalance getBalance(@PathVariable("accountNumber") String accountNumber){
+        return apiRestService.getBalance(accountNumber);
 
     }
 
     @GetMapping(path = Constants.HISTORICAL_RECORDS_TRANSFERS)
-    public ResponseEntity<Page<TransferOperation>> historicalTransferOperations(TransferOperationHistoryPage transferOperationHistoryPage){
+    public Page<TransferOperation> historicalTransferOperations(TransferOperationHistoryPage transferOperationHistoryPage){
         return apiRestService.historicalTransferOperations(transferOperationHistoryPage);
-
     }
 
 
-
-    @GetMapping(path = "/usecase/path")
-    public String commandName() {
-        return "";
-    }
 }
