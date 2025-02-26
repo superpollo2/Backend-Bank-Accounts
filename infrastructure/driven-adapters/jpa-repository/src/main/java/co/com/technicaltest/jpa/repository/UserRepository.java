@@ -4,5 +4,9 @@ import co.com.technicaltest.jpa.entity.UserEntity;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.QueryByExampleExecutor;
 
-public interface UserRepository extends CrudRepository<UserEntity, String>, QueryByExampleExecutor<UserEntity> {
+import java.util.Optional;
+import java.util.UUID;
+
+public interface UserRepository extends CrudRepository<UserEntity, UUID>, QueryByExampleExecutor<UserEntity> {
+    Optional<UserEntity> findUserEntityByIdentityDocument(String identityDocument);
 }

@@ -1,4 +1,4 @@
-package co.com.technicaltest.model.transferfounds;
+package co.com.technicaltest.model.account;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -6,10 +6,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Setter
+import java.math.BigDecimal;
+
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true)
-public class TransferFounds {
+public class NewAccount {
+    private String accountType;
+    private BigDecimal balance;
+    private String identityDocument;
 }
+
