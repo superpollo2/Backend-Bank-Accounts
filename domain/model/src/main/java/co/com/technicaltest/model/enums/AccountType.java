@@ -6,10 +6,10 @@ import lombok.Getter;
 @Getter
 public enum AccountType {
 
-    SAVINGS( "SA"),
-    CURRENT( "CU");
+    SAVINGS("SAVINGS"),
+    CURRENT("CURRENT");
 
-    private String accountType;
+    private final String accountType;
 
     AccountType(String accountType) {
         this.accountType = accountType;

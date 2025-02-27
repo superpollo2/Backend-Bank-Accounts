@@ -11,5 +11,5 @@ import java.util.UUID;
 
 @Repository
 public interface TransferOperationRepository extends CrudRepository<TransferOperationEntity, UUID>, QueryByExampleExecutor<TransferOperationEntity> {
-    Page<TransferOperationEntity> findTransferOperationEntitiesByOriginAccount(String originAccount, Pageable pageable);
+    Page<TransferOperationEntity> findByOriginAccount_AccountNumber(String originAccount, Pageable pageable);
 }

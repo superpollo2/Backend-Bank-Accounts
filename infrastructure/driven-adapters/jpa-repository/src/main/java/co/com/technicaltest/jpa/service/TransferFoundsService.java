@@ -1,5 +1,6 @@
 package co.com.technicaltest.jpa.service;
 
+import co.com.technicaltest.jpa.entity.AccountEntity;
 import co.com.technicaltest.jpa.entity.TransferOperationEntity;
 import co.com.technicaltest.jpa.mapper.Mapper;
 import co.com.technicaltest.jpa.repository.AccountRepository;
@@ -11,15 +12,16 @@ import co.com.technicaltest.model.transferfounds.TransferOperation;
 import co.com.technicaltest.model.transferfounds.gateways.TransferFoundsGateway;
 import co.com.technicaltest.model.util.PaginatedResult;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
 import org.springframework.data.domain.Page;
 
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Log
 public class TransferFoundsService implements TransferFoundsGateway {
 
     private final TransferOperationRepository transferOperationRepository;
@@ -28,14 +30,19 @@ public class TransferFoundsService implements TransferFoundsGateway {
 
     @Override
     public void registerTransferOperation(TransferOperation transferOperation) {
-        var originAccount = accountRepository.findAccountEntityByAccountNumber(transferOperation.getOriginAccount())
-                .orElseThrow(() -> new BankAccountException(HttpStatus.NOT_FOUND.value(), BankAccountErrorCode.BCB00.getErrorCode(),
-                        BankAccountErrorCode.BCB00.getErrorTitle(), "Origin account does not exist"));
+        AccountEntity originAccount = null;
+        AccountEntity destinationAccount = null;
+        if(transferOperation.getOriginAccount() != null) {
+            originAccount = accountRepository.findAccountEntityByAccountNumber(transferOperation.getOriginAccount())
+                    .orElseThrow(() -> new BankAccountException(HttpStatus.NOT_FOUND.value(), BankAccountErrorCode.BCB00.getErrorCode(),
+                            BankAccountErrorCode.BCB00.getErrorTitle(), "Origin account does not exist"));
+        }
 
-        var destinationAccount = accountRepository.findAccountEntityByAccountNumber(transferOperation.getDestinationAccount())
-                .orElseThrow(() -> new BankAccountException(HttpStatus.NOT_FOUND.value(), BankAccountErrorCode.BCB00.getErrorCode(),
-                        BankAccountErrorCode.BCB00.getErrorTitle(), "Destination account does not exist"));
-
+        if(transferOperation.getDestinationAccount() != null) {
+            destinationAccount = accountRepository.findAccountEntityByAccountNumber(transferOperation.getDestinationAccount())
+                    .orElseThrow(() -> new BankAccountException(HttpStatus.NOT_FOUND.value(), BankAccountErrorCode.BCB00.getErrorCode(),
+                            BankAccountErrorCode.BCB00.getErrorTitle(), "Destination account does not exist"));
+        }
         var transferOperationEntity = mapper.transferOperationDomainToEntity(transferOperation, originAccount,destinationAccount);
         transferOperationRepository.save(transferOperationEntity);
     }
@@ -44,10 +51,11 @@ public class TransferFoundsService implements TransferFoundsGateway {
     public PaginatedResult<TransferOperation> getHistoricalTransferOperations(TransferOperationHistoryPage transferOperationHistoryPage) {
         var page = transferOperationHistoryPage.getPage();
         var size = transferOperationHistoryPage.getSize();
-        var pageable = PageRequest.of(page, size, Sort.by("date").descending());
+        var pageable = PageRequest.of(page, size);
 
         Page<TransferOperationEntity> transferEntities = transferOperationRepository
-                .findTransferOperationEntitiesByOriginAccount(transferOperationHistoryPage.getAccountNumber(), pageable);
+                .findByOriginAccount_AccountNumber(transferOperationHistoryPage.getAccountNumber(), pageable);
+
 
         var operations = transferEntities
                 .map(mapper::transferOperationEntityToDomain)

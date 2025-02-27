@@ -1,11 +1,7 @@
 package co.com.technicaltest.model.account;
 
 import co.com.technicaltest.model.enums.AccountType;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
 
@@ -14,6 +10,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true)
+@ToString
 public class NewAccount {
     private AccountType accountType;
     private BigDecimal balance;

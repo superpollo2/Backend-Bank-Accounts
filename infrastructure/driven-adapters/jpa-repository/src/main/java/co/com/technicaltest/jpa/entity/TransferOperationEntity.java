@@ -32,7 +32,7 @@ public class TransferOperationEntity {
     @Column(nullable = false)
     private BigDecimal amount;
 
-    @Column(nullable = false)
+    @Column(nullable = false , name = "data_time")
     private LocalDateTime dateTime;
 
     @ManyToOne

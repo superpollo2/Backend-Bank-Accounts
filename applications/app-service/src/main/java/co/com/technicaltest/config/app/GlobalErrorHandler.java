@@ -6,23 +6,14 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.boot.web.reactive.error.ErrorWebExceptionHandler;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
-import org.springframework.core.io.buffer.DataBuffer;
-import org.springframework.core.io.buffer.DataBufferFactory;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import jakarta.servlet.http.HttpServletRequest;
 
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Mono;
 
 import java.util.UUID;
 
@@ -43,7 +34,7 @@ public class GlobalErrorHandler {
                 .detail(exception.getMessage())
                 .id(UUID.randomUUID())
                 .build();
-        log.info(errors.getId() + " Error en la solicitud " + request.getRequestURI());
+        log.info(errors.getId() + " Error in request " + request.getRequestURI());
         return ResponseEntity.status(exception.getStatus()).body(errors);
     }
 
@@ -52,13 +43,13 @@ public class GlobalErrorHandler {
         Errors errors = Errors.builder()
                 .href(request.getRequestURI())
                 .status(HttpStatus.BAD_REQUEST.value())
-                .code("CR002")
-                .title("Error en el formato del JSON")
-                .detail("El cuerpo de la solicitud contiene un JSON inválido o mal formado.")
+                .code("BR-002")
+                .title("JSON format error")
+                .detail("The request body contains an invalid or malformed JSON.")
                 .id(UUID.randomUUID())
                 .build();
-        log.info(errors.getId() + " Error en la solicitud " + request.getRequestURI());
-        log.error(errors.getId() + " Error: JSON inválido - " + jsonException.getMessage());
+        log.info(errors.getId() + " Error in request " + request.getRequestURI());
+        log.error(errors.getId() + " Error: Invalid JSON - " + jsonException.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
 
@@ -67,14 +58,28 @@ public class GlobalErrorHandler {
         Errors errors = Errors.builder()
                 .href(request.getRequestURI())
                 .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                .code("CR-I00")
-                .title("Error Interno de la API")
-                .detail("Ocurrió un error interno en el servidor. Por favor, intente más tarde.")
+                .code("BR-I00")
+                .title("Internal API Error")
+                .detail("An internal server error occurred. Please try again later.")
                 .id(UUID.randomUUID())
                 .build();
-        log.info(errors.getId() + " Error en la solicitud " + request.getRequestURI());
-        log.error(errors.getId() + " Error: Excepción interna - " + generalException.getMessage());
+        log.info(errors.getId() + " Error in request " + request.getRequestURI());
+        log.error(errors.getId() + " Error: Internal exception - " + generalException.getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errors);
     }
-}
 
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<Errors> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex, HttpServletRequest request) {
+        Errors errors = Errors.builder()
+                .href(request.getRequestURI())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .code("BR-002")
+                .title("JSON format error")
+                .detail("The request body contains an invalid or malformed JSON.")
+                .id(UUID.randomUUID())
+                .build();
+        log.info(errors.getId() + " Error in request " + request.getRequestURI());
+        log.error(errors.getId() + " Error: Invalid JSON - " + ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+    }
+}

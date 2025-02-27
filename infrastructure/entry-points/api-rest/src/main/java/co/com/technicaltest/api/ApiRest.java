@@ -42,8 +42,9 @@ public class ApiRest {
 
     @PostMapping(path = Constants.NEW_ACCOUNT)
     public Account createAccount(@RequestBody NewAccount newAccount){
+        log.info("neh memes"+ newAccount.toString());
         var startTime = LocalDateTime.now();
-        log.info("Starting request to create acoount");
+        log.info("Starting request to create account");
         try {
             return apiRestService.createAccount(newAccount);
         } finally {

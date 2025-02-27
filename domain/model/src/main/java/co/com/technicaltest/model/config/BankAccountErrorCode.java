@@ -9,7 +9,7 @@ public enum BankAccountErrorCode {
     BCB01("BC-B01", "FORMAT ERROR"),
     BCB02("BC-B02", "REQUIRED FIELD ERROR"),
     BCB03("BC-B03", "INSUFFICIENT FUNDS IN ACCOUNT"),
-    BCI00("BC-I00", "INTERNAL API ERROR");
+    BRI00("BR-I00", "INTERNAL API ERROR");
 
     private String errorCode;
     private String errorTitle;

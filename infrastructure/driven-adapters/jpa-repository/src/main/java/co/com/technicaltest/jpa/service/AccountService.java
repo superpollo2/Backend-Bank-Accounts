@@ -11,12 +11,14 @@ import co.com.technicaltest.model.account.transferOperations.WithdrawalsFunds;
 import co.com.technicaltest.model.config.BankAccountErrorCode;
 import co.com.technicaltest.model.config.BankAccountException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 
 @Service
+@Log
 @RequiredArgsConstructor
 public class AccountService implements AccountGateway {
 
@@ -26,6 +28,7 @@ public class AccountService implements AccountGateway {
 
     @Override
     public Account createAccount(Account account) {
+        log.info("que putas pasa en esta mierda "+ account.toString());
         if(Boolean.TRUE.equals(accountExist(account.getAccountNumber()))){
             throw new BankAccountException(HttpStatus.CONFLICT.value(), BankAccountErrorCode.BCB00.getErrorCode(),
                     BankAccountErrorCode.BCB00.getErrorTitle(), "Account already exists"
