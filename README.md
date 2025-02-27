@@ -92,15 +92,26 @@ Esto permite una gestión eficiente de excepciones y facilita la depuración e i
 | BC-B01 | 400 Bad Request | INSUFFICIENT BALANCE | Initial balance cannot be less than {MINIMUM_BALANCE} | No es posible realizar una transacción debido a un saldo insuficiente en la cuenta. |
 
 
-## Swagger
+## Swagger 👻
 La documentación de la API está disponible en formato Swagger. Puedes encontrar de manera online en:
 https://editor.swagger.io/
 La documentación de la API está disponible en formato Swagger. Puedes encontrar el archivo YAML en la siguiente ubicación:
 [Ver Swagger YAML](utils/swagger.yaml)
 
-## Base de Datos H2
+## Base de Datos H2 📃
 Para ejecutar el proyecto, no se requiere configuración adicional de base de datos. Basta con clonar el repositorio, abrirlo en un entorno como IntelliJ IDEA y ejecutarlo.
 
 La API utiliza H2 en memoria, lo que significa que la base de datos se carga en caché durante la ejecución del proyecto. Si bien esta solución tiene limitaciones en persistencia y concurrencia, ofrece una ventaja clave en este tipo de proyectos (pruebas técnicas), ya que permite a los evaluadores ejecutar y probar la API fácilmente, sin necesidad de configurar un entorno de base de datos externo.
 
 Es importante tener en cuenta que, debido a la naturaleza volátil de H2 en memoria, todos los datos se perderán cada vez que el proyecto se vuelva a ejecutar o reconstruir. 🚀
+
+
+## Colección Endpoints 📢
+En este apartado, encontrarás una colección de Postman que incluye todos los endpoints de la API, permitiéndote probar fácilmente sus funcionalidades sin necesidad de configurar manualmente cada petición.
+
+La colección contiene ejemplos predefinidos con los parámetros necesarios para interactuar con los servicios de gestión de cuentas bancarias, incluyendo la creación de cuentas, consulta de saldo, depósitos, retiros y revisión del historial de transacciones.
+
+Para utilizarla, simplemente importa la colección en Postman y asegúrate de configurar la URL base del servicio según tu entorno de ejecución.
+Puedes encontrar la colección de **Postman** con todos los endpoints de la API en el siguiente archivo:
+
+📂 [`utils/Bank Account API REST.postman_collection.json`](utils/Bank%20Account%20API%20REST.postman_collection.json) 
