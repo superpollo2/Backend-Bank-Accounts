@@ -1,6 +1,7 @@
 package co.com.technicaltest.api.service;
 
 
+import co.com.technicaltest.api.util.Constants;
 import co.com.technicaltest.model.account.Account;
 import co.com.technicaltest.model.account.AccountBalance;
 import co.com.technicaltest.model.account.NewAccount;
@@ -31,12 +32,12 @@ public class ApiRestService {
             var size = transferOperationHistoryPage.getSize();
         if (size <= 0) {
             throw new BankAccountException(HttpStatus.BAD_REQUEST.value(), BankAccountErrorCode.BCB01.getErrorCode(),
-                    BankAccountErrorCode.BCB01.getErrorTitle(), "Page size must be greater than zero");
+                    BankAccountErrorCode.BCB01.getErrorTitle(), Constants.PAGE_SIZE);
         }
 
         if (page < 0) {
             throw new BankAccountException(HttpStatus.BAD_REQUEST.value(), BankAccountErrorCode.BCB01.getErrorCode(),
-                    BankAccountErrorCode.BCB01.getErrorTitle(), "Page index must be zero or greater");
+                    BankAccountErrorCode.BCB01.getErrorTitle(),Constants.PAGE_INDEX);
         }
 
         return accountUseCase.getHistoricalTransferOperations(transferOperationHistoryPage);

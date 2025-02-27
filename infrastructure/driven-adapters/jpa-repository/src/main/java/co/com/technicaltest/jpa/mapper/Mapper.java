@@ -82,6 +82,7 @@ public class Mapper {
                 .originAccount(transferOperation.getOriginAccount() != null
                         ? transferOperation.getOriginAccount().getAccountNumber()
                         : null)
+                .dateTime(transferOperation.getDateTime())
                 .amount(transferOperation.getAmount())
                 .build();
     }

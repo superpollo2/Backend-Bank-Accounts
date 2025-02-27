@@ -103,7 +103,7 @@ public class ApiRest {
 
     }
 
-    @GetMapping(path = Constants.HISTORICAL_RECORDS_TRANSFERS)
+    @PostMapping(path = Constants.HISTORICAL_RECORDS_TRANSFERS)
     public PaginatedResult<TransferOperation> historicalTransferOperations(@RequestBody TransferOperationHistoryPage transferOperationHistoryPage){
         var startTime = LocalDateTime.now();
         log.info("Starting request to get historical record of tranfers");

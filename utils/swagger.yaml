@@ -1,0 +1,687 @@
+openapi: 3.0.1
+info:
+  title: API de Administración de Cuentas Bancarias
+  description: API para gestionar usuarios, cuentas bancarias y transacciones financieras.
+  version: 1.0.0
+
+servers:
+  - url: /api/v1/bankAccounts
+    description: Servidor Principal
+
+paths:
+  /newUser:
+    post:
+      summary: Crear un nuevo usuario
+      operationId: createUser
+      requestBody:
+        description: Datos del usuario a registrar
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+      responses:
+        "200":
+          description: Usuario creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+              example:
+                identityDocument: "123456789"
+                name: "John Doe"
+        "404":
+          description: Errores de existencia
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                ErrorUserNotFound:
+                  value:
+                    id: "b1a2c3d4-e5f6-7890-ab12-cd34ef56gh78"
+                    href: "/api/v1/bankAccounts/newUser"
+                    title: "ERROR QUERY, DOES NOT EXIST OR IS NOT AVAILABLE"
+                    code: "BC-B000"
+                    status: 404
+                    detail: "User not found"
+        "409":
+          description: Errores de existencia
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                ErrorConflictUserAlredyExist:
+                  value:
+                    id: "b1a2c3d4-e5f6-7890-ab12-cd34ef56gh78"
+                    href: "/api/v1/bankAccounts/newUser"
+                    title: "ERROR QUERY, DOES NOT EXIST OR IS NOT AVAILABLE"
+                    code: "BC-B000"
+                    status: 409
+                    detail: "User already exists"
+        "500":
+          description: Errores interno de la api
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                ErrorInternalServerError:
+                  value:
+                    id: "b1a2c3d4-e5f6-7890-ab12-cd34ef56gh78"
+                    href: "/api/v1/bankAccounts/newUser"
+                    title: "INTERNAL API ERROR"
+                    code: "BR-I00"
+                    status: 500
+                    detail: "An internal server error occurred. Please try again later"
+
+  /newAccount:
+    post:
+      summary: Crear una nueva cuenta bancaria
+      operationId: createAccount
+      requestBody:
+        description: Datos para la creación de la cuenta
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewAccount"
+      responses:
+        "200":
+          description: Cuenta creada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Account"
+              example:
+                accountNumber: "987654321"
+                accountType: "SAVINGS"
+                balance: 1000.00
+                identityDocument: "123456789"
+        "404":
+          description: Errores de existencia
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                ErrorAccountNotFound:
+                  value:
+                    id: "b1a2c3d4-e5f6-7890-ab12-cd34ef56gh78"
+                    href: "/api/v1/bankAccounts/newAccount"
+                    title: "ERROR QUERY, DOES NOT EXIST OR IS NOT AVAILABLE"
+                    code: "BC-B000"
+                    status: 404
+                    detail: "User not found"
+        "409":
+          description: Errores de consistencia o conflicto
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                ErrorConflictAccountAlredyExist:
+                  value:
+                    id: "b1a2c3d4-e5f6-7890-ab12-cd34ef56gh78"
+                    href: "/api/v1/bankAccounts/newAccount"
+                    title: "ERROR QUERY, DOES NOT EXIST OR IS NOT AVAILABLE"
+                    code: "BC-B000"
+                    status: 409
+                    detail: "Account already exists"
+        "400":
+          description: Errores de mal formación de la request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                ErrorInitialBalance:
+                  value:
+                    id: "b1a2c3d4-e5f6-7890-ab12-cd34ef56gh78"
+                    href: "/api/v1/bankAccounts/newAccount"
+                    title: "FORMAT ERROR"
+                    code: "BC-B01"
+                    status: 400
+                    detail: "Initial balance cannot be less than 200000"
+        "500":
+          description: Errores interno de la api
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                ErrorInternalServerError:
+                  value:
+                    id: "b1a2c3d4-e5f6-7890-ab12-cd34ef56gh78"
+                    href: "/api/v1/bankAccounts/newAccount"
+                    title: "INTERNAL API ERROR"
+                    code: "BR-I00"
+                    status: 500
+                    detail: "An internal server error occurred. Please try again later"
+
+  /transfers:
+    post:
+      summary: Transferir dinero entre cuentas
+      operationId: transferMoney
+      requestBody:
+        description: Datos de la transferencia
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TransferFunds"
+      responses:
+        "200":
+          description: Transferencia exitosa
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccountBalance"
+        "404":
+          description: Errores de existencia
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                ErrorOriginAccountNotExist:
+                  value:
+                    id: "b1a2c3d4-e5f6-7890-ab12-cd34ef56gh78"
+                    href: "/api/v1/bankAccounts/transfers"
+                    title: "ERROR QUERY, DOES NOT EXIST OR IS NOT AVAILABLE"
+                    code: "BC-B000"
+                    status: 404
+                    detail: "Origin account does not exist"
+        "400":
+          description: Errores de mal formación de la request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                ErrorInsuficientFunds:
+                  value:
+                    id: "b1a2c3d4-e5f6-7890-ab12-cd34ef56gh78"
+                    href: "/api/v1/bankAccounts/transfers"
+                    title: "INSUFFICIENT FUNDS IN ACCOUNT"
+                    code: "BC-B03"
+                    status: 400
+                    detail: "nsufficient funds in account 12389574832"
+        "500":
+          description: Errores interno de la api
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                ErrorInternalServerError:
+                  value:
+                    id: "b1a2c3d4-e5f6-7890-ab12-cd34ef56gh78"
+                    href: "/api/v1/bankAccounts/transfers"
+                    title: "INTERNAL API ERROR"
+                    code: "BR-I00"
+                    status: 500
+                    detail: "An internal server error occurred. Please try again later"
+
+  /withdrawals:
+    post:
+      summary: Retirar dinero de una cuenta
+      operationId: withdrawalMoney
+      requestBody:
+        description: Datos del retiro
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WithdrawalsFunds"
+      responses:
+        "200":
+          description: Retiro exitoso
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccountBalance"
+        "404":
+          description: Errores de existencia
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                ErrorAccountNotExist:
+                  value:
+                    id: "b1a2c3d4-e5f6-7890-ab12-cd34ef56gh78"
+                    href: "/api/v1/bankAccounts/withdrawals"
+                    title: "ERROR QUERY, DOES NOT EXIST OR IS NOT AVAILABLE"
+                    code: "BC-B000"
+                    status: 404
+                    detail: "Account does not exist"
+        "400":
+          description: Errores de mal formación de la request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                ErrorInsuficientFunds:
+                  value:
+                    id: "b1a2c3d4-e5f6-7890-ab12-cd34ef56gh78"
+                    href: "/api/v1/bankAccounts/withdrawals"
+                    title: "INSUFFICIENT FUNDS IN ACCOUNT"
+                    code: "BC-B03"
+                    status: 400
+                    detail: "nsufficient funds in account 12389574832"
+        "500":
+          description: Errores interno de la api
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                ErrorInternalServerError:
+                  value:
+                    id: "b1a2c3d4-e5f6-7890-ab12-cd34ef56gh78"
+                    href: "/api/v1/bankAccounts/withdrawals"
+                    title: "INTERNAL API ERROR"
+                    code: "BR-I00"
+                    status: 500
+                    detail: "An internal server error occurred. Please try again later"
+
+  /deposit:
+    post:
+      summary: Depositar dinero en una cuenta
+      operationId: depositMoney
+      requestBody:
+        description: Datos del depósito
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WithdrawalsFunds"
+      responses:
+        "200":
+          description: Depósito exitoso
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccountBalance"
+        "404":
+          description: Errores de existencia
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                ErrorAccountNotExist:
+                  value:
+                    id: "b1a2c3d4-e5f6-7890-ab12-cd34ef56gh78"
+                    href: "/api/v1/bankAccounts/deposit"
+                    title: "ERROR QUERY, DOES NOT EXIST OR IS NOT AVAILABLE"
+                    code: "BC-B000"
+                    status: 404
+                    detail: "Account does not exist"
+        "500":
+          description: Errores interno de la api
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                ErrorInternalServerError:
+                  value:
+                    id: "b1a2c3d4-e5f6-7890-ab12-cd34ef56gh78"
+                    href: "/api/v1/bankAccounts/deposit"
+                    title: "INTERNAL API ERROR"
+                    code: "BR-I00"
+                    status: 500
+                    detail: "An internal server error occurred. Please try again later"
+
+  /checkBalance/{accountNumber}:
+    get:
+      summary: Consultar saldo de una cuenta
+      operationId: getBalance
+      parameters:
+        - name: accountNumber
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Consulta de saldo exitosa
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccountBalance"
+        "404":
+          description: Errores de existencia
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                ErrorAccountNotExist:
+                  value:
+                    id: "b1a2c3d4-e5f6-7890-ab12-cd34ef56gh78"
+                    href: "/api/v1/bankAccounts/checkBalance/1234567864"
+                    title: "ERROR QUERY, DOES NOT EXIST OR IS NOT AVAILABLE"
+                    code: "BC-B000"
+                    status: 404
+                    detail: "Account does not exist"
+        "500":
+          description: Errores interno de la api
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                ErrorInternalServerError:
+                  value:
+                    id: "b1a2c3d4-e5f6-7890-ab12-cd34ef56gh78"
+                    href: "/api/v1/bankAccounts/checkBalance/1234567864"
+                    title: "INTERNAL API ERROR"
+                    code: "BR-I00"
+                    status: 500
+                    detail: "An internal server error occurred. Please try again later"
+  
+  /historicalRecordsTransfers:
+    post:
+      summary: Consultar el historial de transacciones de una cuenta
+      operationId: historicalTransferOperations
+      requestBody:
+        description: Datos para la consulta de historial paginado de transferencias
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TransferOperationHistoryPage"
+      responses:
+        "200":
+          description: Consulta paginada de historial exitosa
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedTransferOperations"
+        "404":
+          description: Errores de existencia
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                ErrorUserNotFound:
+                  value:
+                    id: "b1a2c3d4-e5f6-7890-ab12-cd34ef56gh78"
+                    href: "/api/v1/bankAccounts/historicalRecordsTransfers"
+                    title: "ERROR QUERY, DOES NOT EXIST OR IS NOT AVAILABLE"
+                    code: "BC-B000"
+                    status: 404
+                    detail: "User not found"
+        "400":
+          description: Errores de mal formación de la request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                ErrorValueOfSizePageIncorrect:
+                  value:
+                    id: "b1a2c3d4-e5f6-7890-ab12-cd34ef56gh78"
+                    href: "/api/v1/bankAccounts/historicalRecordsTransfers"
+                    title: "FORMAT ERROR"
+                    code: "BC-B01"
+                    status: 400
+                    detail: "Page size must be greater than zero"
+                ErrorValueOfIndexPageIncorrect:
+                  value:
+                    id: "b1a2c3d4-e5f6-7890-ab12-cd34ef56gh78"
+                    href: "/api/v1/bankAccounts/historicalRecordsTransfers"
+                    title: "FORMAT ERROR"
+                    code: "BC-B01"
+                    status: 400
+                    detail: "Page index must be zero or greater"
+        "500":
+          description: Errores interno de la api
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                ErrorConflictUserAlredyExist:
+                  value:
+                    id: "b1a2c3d4-e5f6-7890-ab12-cd34ef56gh78"
+                    href: "/api/v1/bankAccounts/historicalRecordsTransfers"
+                    title: "INTERNAL API ERROR"
+                    code: "BR-I00"
+                    status: 500
+                    detail: "An internal server error occurred. Please try again later"
+
+components:
+  schemas:
+    User:
+      type: object
+      description: Creación de un nuevo usuario/cliente del banco
+      properties:
+        identityDocument:
+          type: string
+          example: "1234556"
+        name:
+          type: string
+          example: "Joe Arroyo"
+
+    NewAccount:
+      type: object
+      description: Creación de una nueva cuenta dentro del banco
+      properties:
+        accountType:
+          description: |-
+            Tipo de cuenta que el usuario tiene
+            * `SAVINGS` - Cuenta de Ahorros
+            * `CURRENT` - Cuenta Corriente
+          enum:
+            - SAVINGS
+            - CURRENT
+          type: string
+          example: CURRENT
+        balance:
+          description: El monto inicial al crearse una cuenta no pude ser menor a 200000
+          type: number
+          format: bigDecimal
+          example: 200000
+          minimum: 200000
+        identityDocument:
+          description: La cuenta debe estar ligada a un usuario existente
+          type: string
+          example: 123
+
+    Account:
+      type: object
+      description: Respuesta tras la creación de una nueva cuenta
+      properties:
+        accountNumber:
+          description: Este número es creado de manera aleatoria y tiene una longitud de 10
+          type: string
+          example: 2078487190
+        accountType:
+          description: |-
+            Tipo de cuenta que se creo y asigno
+            * `SAVINGS` - Cuenta de Ahorros
+            * `CURRENT` - Cuenta Corriente
+          enum:
+            - SAVINGS
+            - CURRENT
+          type: string
+          example: SAVINGS
+        balance:
+          type: number
+          description: balance de una cuenta
+          format: bigDecimal
+          example: 200000
+        identityDocument:
+          description: a quien pertenece dicha cuenta
+          type: string
+          example: 1234
+
+    AccountBalance:
+      type: object
+      description: Respuesta para las consultas de balance y cualquier transación 
+      properties:
+        accountNumber:
+          type: string
+        accountType:
+          description: |-
+            Tipo de cuenta que se creo y asigno
+            * `SAVINGS` - Cuenta de Ahorros
+            * `CURRENT` - Cuenta Corriente
+          enum:
+            - SAVINGS
+            - CURRENT
+          type: string
+          example: SAVINGS
+        balance:
+          type: number
+          description: balance de una cuenta
+          format: bigDecimal
+          example: 200000
+
+    TransferFunds:
+      type: object
+      description: Transferencia de dinero entre dos cuentas
+      properties:
+        originAccount:
+          description: Cuenta desde la cual de tranfieren los fondos
+          type: string
+          example: 2078487190
+        destinationAccount:
+          description: Cuenta a la a cual se le tranfieren los fondos
+          type: string
+          example: 2386501518
+        amount:
+          description: Cantidad para la tranferencia, debe ser mayor que cero
+          type: number
+          format: bigDecimal
+          minimum: 1
+
+    WithdrawalsFunds:
+      type: object
+      description: Retirar/depositar dinero de una cuenta
+      properties:
+        accountNumber:
+          description: Cuenta desde la cual de quiere retirar fondos
+          type: string
+          example: 2078487190
+        amount:
+          type: number
+          description: solo se permiten retiros multiplos de 10 y depositos mayores que 1
+          format: bigdecimal
+          minimum: 10000
+
+    TransferOperationHistoryPage:
+      type: object
+      description: |-
+        Este objeto se usa para traer el historial de transacciones de un cuenta
+        se usa paginación pues pueden ser muchas
+      properties:
+        accountNumber:
+          description: número de la cuenta a consultar
+          type: string
+          example: "987654321"
+        page:
+          type: integer
+          description: número de la página
+          minimum: 0
+          example: 1
+        size:
+          type: integer
+          description: tamaño de los datos que se van a traer
+          minimum: 1
+          example: 10
+          
+    TransferOperation:
+      type: object
+      properties:
+        transactionType:
+          description: |-
+            Tipo de cuenta transferencia que se va a realizar, este valor es asignado internamente
+            * DEPOSIT - Deposito de dinero a una cuenta
+            * WITHDRAWAL - Retiro de dinero de una cuenta
+            * TRANSFER - Transferencia de dinero de una cuenta a otra
+          enum:
+            - DEPOSIT
+            - WITHDRAWAL
+            - TRANSFER
+          type: string
+          example: TRANSFER
+        amount:
+          type: number
+          format: bigDecimal
+          example: 500.00
+          minimum: 1
+        dateTime:
+          description: día y hora de la transacción
+          type: string
+          format: date-time
+          example: "2024-02-27T12:30:00Z"
+        originAccount:
+          type: string
+          example: "123456789"
+        destinationAccount:
+          description: |- 
+            Este valor puede estar en transaciones como deposito y retiro en null
+            Pues no cuentan con una cuenta de destino como tal
+          type: string
+          example: "987654321"  
+          
+    PaginatedTransferOperations:
+      type: object
+      description: Paginación de la consulta de historial de transacciones
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/TransferOperation"
+        page:
+          type: integer
+          example: 1
+        size:
+          type: integer
+          description: la cantidad de registros que se van a visualizar en la consulta
+          example: 10
+        totalElements:
+          description: la cantidad de registros que hay 
+          type: integer
+          example: 100
+    
+    ErrorResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Identificador único del mensaje.
+          example: "5c4e0b9b-d697-47bb-8d42-d632ac292ef8"
+        href:
+          type: string
+          format: uri
+          description: URL con más información sobre el error.
+          example: "/api/v1/bankAccounts/historicalRecordsTransfers"
+        title:
+          type: string
+          description: Título breve del error.
+          example: "INSUFFICIENT FUNDS IN ACCOUNT"
+        code:
+          type: string
+          description: Código específico del error.
+          example: "BC-B01"
+        status:
+          type: integer
+          description: Código de estado HTTP del error.
+          example: 400
+        detail:
+          type: string
+          description: Descripción detallada del error.
+          example: >-
+            Origin account does not exist
+
+

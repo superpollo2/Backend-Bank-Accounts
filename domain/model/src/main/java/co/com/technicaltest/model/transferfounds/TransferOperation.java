@@ -4,6 +4,7 @@ import co.com.technicaltest.model.enums.TransactionType;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 
 @Getter
@@ -14,6 +15,7 @@ import java.math.BigDecimal;
 public class TransferOperation {
     private TransactionType transactionType;
     private BigDecimal amount;
+    private LocalDateTime dateTime;
     private String originAccount;
     private String destinationAccount;
 }
