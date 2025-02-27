@@ -5,13 +5,14 @@ import lombok.Getter;
 @Getter
 public enum BankAccountErrorCode {
 
-        CRB00("CR-B000", "ERROR CONSULTA, NO EXISTE O NO ESTA DISPONIBLE"),
-        CRB01("CR-B01","ERROR EN FORMATO" ),
-        CRB02("CR-B02","ERROR CAMPO REQUERIDO" ),
-        CRI00("CR-I00","ERROR INTERNO DE LA API");
+    BCB00("BC-B000", "ERROR QUERY, DOES NOT EXIST OR IS NOT AVAILABLE"),
+    BCB01("BC-B01", "FORMAT ERROR"),
+    BCB02("BC-B02", "REQUIRED FIELD ERROR"),
+    BCB03("BC-B03", "INSUFFICIENT FUNDS IN ACCOUNT"),
+    BCI00("BC-I00", "INTERNAL API ERROR");
 
-        private String errorCode;
-        private String errorTitle;
+    private String errorCode;
+    private String errorTitle;
 
     BankAccountErrorCode(String errorCode, String errorTitle) {
         this.errorCode = errorCode;

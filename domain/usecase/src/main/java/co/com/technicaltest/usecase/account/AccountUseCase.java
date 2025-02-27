@@ -5,13 +5,15 @@ import co.com.technicaltest.model.account.AccountBalance;
 import co.com.technicaltest.model.account.NewAccount;
 import co.com.technicaltest.model.account.gateways.AccountGateway;
 import co.com.technicaltest.model.account.transferOperations.TransferFunds;
+import co.com.technicaltest.model.account.transferOperations.TransferOperationHistoryPage;
 import co.com.technicaltest.model.account.transferOperations.WithdrawalsFunds;
+import co.com.technicaltest.model.config.BankAccountErrorCode;
+import co.com.technicaltest.model.config.BankAccountException;
 import co.com.technicaltest.model.enums.TransactionType;
 import co.com.technicaltest.model.transferfounds.TransferOperation;
 import co.com.technicaltest.model.transferfounds.gateways.TransferFoundsGateway;
+import co.com.technicaltest.model.util.PaginatedResult;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 import java.util.Random;
@@ -20,8 +22,10 @@ import java.util.Random;
 public class AccountUseCase {
 
     private static final BigDecimal MINIMUM_BALANCE = new BigDecimal("200000");
+    private static final Integer NOT_FOUND_CODE = 404;
     private final AccountGateway accountGateway;
     private final TransferFoundsGateway transferFoundsGateway;
+    private static final Random RANDOM = new Random();
 
     public AccountBalance transferFunds(TransferFunds transferFunds){
         var updateBalance = accountGateway.transferFunds(transferFunds);
@@ -63,7 +67,8 @@ public class AccountUseCase {
 
     public Account createAccount(NewAccount newAccount){
         if (newAccount.getBalance().compareTo(MINIMUM_BALANCE) < 0) {
-            throw new IllegalArgumentException("Initial balance cannot be less than " + MINIMUM_BALANCE);
+            throw new BankAccountException(NOT_FOUND_CODE, BankAccountErrorCode.BCB00.getErrorCode(),
+                    BankAccountErrorCode.BCB00.getErrorTitle(), "Initial balance cannot be less than " + MINIMUM_BALANCE);
         }
 
         var account = Account.builder()
@@ -75,16 +80,15 @@ public class AccountUseCase {
         return accountGateway.createAccount(account);
     }
 
-    public Page<TransferOperation> getHistoricalTransferOperations(String accountNumber, Pageable pageable){
-        return transferFoundsGateway.getHistoricalTransferOperations(accountNumber,pageable);
+    public PaginatedResult<TransferOperation> getHistoricalTransferOperations(TransferOperationHistoryPage transferOperationHistoryPage){
+        return transferFoundsGateway.getHistoricalTransferOperations(transferOperationHistoryPage);
     }
 
     private String generateAccountNumber() {
-        var random = new Random();
         var accountNumber = new StringBuilder();
 
         for (int i = 0; i < 10; i++) {
-            accountNumber.append(random.nextInt(10));
+            accountNumber.append(RANDOM.nextInt(10));
         }
 
         return accountNumber.toString();

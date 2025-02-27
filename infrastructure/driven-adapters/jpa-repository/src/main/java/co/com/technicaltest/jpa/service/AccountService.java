@@ -1,38 +1,40 @@
 package co.com.technicaltest.jpa.service;
 
-import co.com.technicaltest.jpa.adapter.AccountRepositoryAdapter;
 import co.com.technicaltest.jpa.entity.AccountEntity;
 import co.com.technicaltest.jpa.mapper.Mapper;
 import co.com.technicaltest.jpa.repository.AccountRepository;
 import co.com.technicaltest.model.account.Account;
 import co.com.technicaltest.model.account.AccountBalance;
-import co.com.technicaltest.model.account.NewAccount;
 import co.com.technicaltest.model.account.gateways.AccountGateway;
 import co.com.technicaltest.model.account.transferOperations.TransferFunds;
 import co.com.technicaltest.model.account.transferOperations.WithdrawalsFunds;
-import co.com.technicaltest.model.enums.AccountType;
+import co.com.technicaltest.model.config.BankAccountErrorCode;
+import co.com.technicaltest.model.config.BankAccountException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 
+@Service
 @RequiredArgsConstructor
 public class AccountService implements AccountGateway {
 
-    private final AccountRepositoryAdapter accountRepositoryAdapter;
     private final AccountRepository accountRepository;
     private final UserService userService;
     private final Mapper mapper;
 
     @Override
     public Account createAccount(Account account) {
-        var user = userService.getUser(account.getIdentityDocument()).orElseThrow(() -> new RuntimeException("User not found"));
+        var user = userService.getUser(account.getIdentityDocument());
         return mapper.accountEntityToDomain(accountRepository.save(mapper.accountDomainToEntity(account, user)));
     }
 
     @Override
     public AccountBalance getAccountBalance(String accountNumber) {
         var originAccount = accountRepository.findAccountEntityByAccountNumber(accountNumber).orElseThrow( () ->
-                new RuntimeException("Account not found"));
+                new BankAccountException(HttpStatus.NOT_FOUND.value(), BankAccountErrorCode.BCB00.getErrorCode(),
+                        BankAccountErrorCode.BCB00.getErrorTitle(), "Account not found"));
         return mapper.accountEntityToBalanceDomain(originAccount);
     }
 
@@ -43,10 +45,12 @@ public class AccountService implements AccountGateway {
         var amount = transferFunds.getAmount();
 
         var originAccount = accountRepository.findAccountEntityByAccountNumber(originAccountNumber)
-                .orElseThrow(() -> new RuntimeException("Origin account does not exist"));
+                .orElseThrow(() -> new BankAccountException(HttpStatus.NOT_FOUND.value(), BankAccountErrorCode.BCB00.getErrorCode(),
+                        BankAccountErrorCode.BCB00.getErrorTitle(), "Origin account does not exist"));
 
         var destinationAccount = accountRepository.findAccountEntityByAccountNumber(destinationAccountNumber)
-                .orElseThrow(() -> new RuntimeException("Destination account does not exist"));
+                .orElseThrow(() -> new BankAccountException(HttpStatus.NOT_FOUND.value(), BankAccountErrorCode.BCB00.getErrorCode(),
+                        BankAccountErrorCode.BCB00.getErrorTitle(), "Destination account does not exist"));
 
         validateSufficientFunds(originAccount, amount);
 
@@ -67,7 +71,8 @@ public class AccountService implements AccountGateway {
         var amount =  depositFunds.getAmount();
 
         var originAccount = accountRepository.findAccountEntityByAccountNumber(accountNumber)
-                .orElseThrow(() -> new RuntimeException("Account does not exist"));
+                .orElseThrow(() -> new BankAccountException(HttpStatus.NOT_FOUND.value(), BankAccountErrorCode.BCB00.getErrorCode(),
+                        BankAccountErrorCode.BCB00.getErrorTitle(), "Account does not exist"));
 
         originAccount.setBalance(originAccount.getBalance().add(amount));
 
@@ -82,7 +87,8 @@ public class AccountService implements AccountGateway {
         var amount =  withdrawalsFunds.getAmount();
 
         var originAccount = accountRepository.findAccountEntityByAccountNumber(accountNumber)
-                .orElseThrow(() -> new RuntimeException("Account does not exist"));
+                .orElseThrow(() -> new BankAccountException(HttpStatus.NOT_FOUND.value(), BankAccountErrorCode.BCB00.getErrorCode(),
+                        BankAccountErrorCode.BCB00.getErrorTitle(), "Account does not exist"));
 
         validateSufficientFunds(originAccount, amount);
         originAccount.setBalance(originAccount.getBalance().subtract(amount));
@@ -94,11 +100,10 @@ public class AccountService implements AccountGateway {
 
     private void validateSufficientFunds(AccountEntity account, BigDecimal amount) {
         if (account.getBalance().compareTo(amount) < 0) {
-            throw new RuntimeException("Insufficient funds in account " + account.getAccountNumber());
+            throw new BankAccountException(HttpStatus.BAD_REQUEST.value(), BankAccountErrorCode.BCB03.getErrorCode(),
+                    BankAccountErrorCode.BCB03.getErrorTitle(), "Insufficient funds in account " + account.getAccountNumber());
         }
     }
 
-    private Boolean existAccount(String accountNumber){
-        return accountRepository.existsAccountEntityByAccountNumber(accountNumber);
-    }
+
 }

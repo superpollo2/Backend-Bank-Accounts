@@ -7,14 +7,15 @@ import co.com.technicaltest.model.account.NewAccount;
 import co.com.technicaltest.model.account.transferOperations.TransferFunds;
 import co.com.technicaltest.model.account.transferOperations.TransferOperationHistoryPage;
 import co.com.technicaltest.model.account.transferOperations.WithdrawalsFunds;
+import co.com.technicaltest.model.config.BankAccountErrorCode;
+import co.com.technicaltest.model.config.BankAccountException;
 import co.com.technicaltest.model.transferfounds.TransferOperation;
 import co.com.technicaltest.model.user.User;
+import co.com.technicaltest.model.util.PaginatedResult;
 import co.com.technicaltest.usecase.account.AccountUseCase;
 import co.com.technicaltest.usecase.user.UserUseCase;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -24,12 +25,21 @@ public class ApiRestService {
     private final UserUseCase userUseCase;
     private final AccountUseCase accountUseCase;
 
-    public Page<TransferOperation> historicalTransferOperations(
+    public PaginatedResult<TransferOperation> historicalTransferOperations(
             TransferOperationHistoryPage transferOperationHistoryPage){
-        var page = transferOperationHistoryPage.getPage();
-        var size = transferOperationHistoryPage.getSize();
-        var pageable = PageRequest.of(page, size, Sort.by("date").descending());
-        return accountUseCase.getHistoricalTransferOperations(transferOperationHistoryPage.getAccountNumber(), pageable);
+            var page = transferOperationHistoryPage.getPage();
+            var size = transferOperationHistoryPage.getSize();
+        if (size <= 0) {
+            throw new BankAccountException(HttpStatus.BAD_REQUEST.value(), BankAccountErrorCode.BCB01.getErrorCode(),
+                    BankAccountErrorCode.BCB01.getErrorTitle(), "Page size must be greater than zero");
+        }
+
+        if (page < 0) {
+            throw new BankAccountException(HttpStatus.BAD_REQUEST.value(), BankAccountErrorCode.BCB01.getErrorCode(),
+                    BankAccountErrorCode.BCB01.getErrorTitle(), "Page index must be zero or greater");
+        }
+
+        return accountUseCase.getHistoricalTransferOperations(transferOperationHistoryPage);
     }
 
     public User createUser(User user){
