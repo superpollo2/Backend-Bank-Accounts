@@ -37,6 +37,37 @@ Los objetivos específicos de la API incluyen:
 
 ✅ Exponer endpoints REST con una estructura clara y siguiendo buenas prácticas de diseño de API.
 
+
+## Consideraciones en el Análisis y Diseño del Proyecto
+Durante la fase de análisis y diseño del proyecto, se establecieron una serie de reglas y lineamientos para garantizar la integridad y seguridad de las operaciones bancarias. A continuación, se detallan los principales aspectos considerados:
+
+🔹 Control de Saldos y Transacciones:
+Para evitar inconsistencias financieras, se estableció que una cuenta no puede realizar transferencias ni retiros si no cuenta con saldo suficiente. Esto asegura que las operaciones reflejen con precisión la disponibilidad de fondos en cada cuenta.
+
+🔹 Validación de Existencia de Cuentas:
+No se permite realizar una transferencia si alguna de las cuentas involucradas no existe. Esta validación es fundamental para evitar transacciones hacia cuentas inexistentes o erróneas.
+
+🔹 Unicidad de Cuentas y Relación con Usuarios:
+Un usuario puede poseer múltiples cuentas de ahorro o corrientes, sin embargo, cada número de cuenta debe ser único en el sistema. Este principio garantiza la identificación inequívoca de cada cuenta bancaria.
+
+🔹 Identidad Única de Usuarios:
+Cada usuario debe existir una única vez en el sistema, evitando duplicados y asegurando la correcta asociación de sus cuentas bancarias.
+
+🔹 Vinculación Obligatoria entre Cuentas y Usuarios:
+Toda cuenta debe estar asociada a un usuario. Esto permite un mejor control sobre las operaciones y facilita la administración de los clientes del banco.
+
+🔹 Restricción en Montos de Transacción:
+No se permite realizar ninguna transacción donde el monto sea cero. Esto previene errores en la operativa y mantiene la coherencia de las operaciones financieras.
+
+🔹 Manejo Eficiente del Historial de Transacciones:
+Con el fin de optimizar el rendimiento del sistema y permitir la consulta eficiente del historial de transacciones a largo plazo, se implementó un sistema de paginación. Esto permite manejar grandes volúmenes de datos sin afectar el desempeño de la aplicación.
+
+🔹 Estructura del Historial de Transacciones:
+En el registro de historial de transacciones se establecieron los campos originAccount y destinationAccount. La única excepción permitida es que destinationAccount pueda ser null, lo cual aplica en ciertos tipos de transacciones donde no es necesario especificar un destino.
+
+Estas consideraciones fueron clave en el diseño del sistema, asegurando una operación segura, eficiente y alineada con las mejores prácticas del sector bancario.
+
+
 ## Arquitectura
 Este proyecto se costruye usando arquitectura limpia mediante el patron o arquitectura
 creada por Bancolombia llamado Scaffold, este modelo de arquitectura es un tipo especifico
@@ -115,3 +146,8 @@ Para utilizarla, simplemente importa la colección en Postman y asegúrate de co
 Puedes encontrar la colección de **Postman** con todos los endpoints de la API en el siguiente archivo:
 
 📂 [`utils/Bank Account API REST.postman_collection.json`](utils/Bank%20Account%20API%20REST.postman_collection.json) 
+
+## Cobertura de pruebas unitarias
+La cobertura de pruebas unitarias y el análisis de código estático (sintaxis, calidad y seguridad) se realizaron con SonarCloud, una herramienta dinámica que proporciona métricas detalladas en tiempo real. SonarCloud se integró con GitHub mediante GitHub Actions, permitiendo un monitoreo continuo de la calidad del código en cada cambio del repositorio.
+Puedes encontrar el repo en sonarcloud en el siguiente link
+https://sonarcloud.io/project/overview?id=superpollo2_Backend-Bank-Accounts

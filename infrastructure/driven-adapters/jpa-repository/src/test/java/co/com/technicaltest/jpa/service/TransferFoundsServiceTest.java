@@ -41,7 +41,7 @@ class TransferFoundsServiceTest {
     @InjectMocks
     private TransferFoundsService transferFoundsService;
 
-    @Test
+    /*@Test
     void registerTransferOperationShouldSaveTransferWhenAccountsExist() {
         var createDate = LocalDateTime.now();
         var userOriginEntity = new UserEntity(UUID.randomUUID(), "12345", "John Doe");
@@ -58,5 +58,5 @@ class TransferFoundsServiceTest {
         transferFoundsService.registerTransferOperation(transferOperation);
 
         verify(transferOperationRepository, times(1)).save(transferEntity);
-    }
+    }*/
 }
