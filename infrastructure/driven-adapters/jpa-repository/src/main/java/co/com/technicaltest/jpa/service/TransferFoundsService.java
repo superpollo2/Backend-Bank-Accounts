@@ -5,6 +5,7 @@ import co.com.technicaltest.jpa.entity.TransferOperationEntity;
 import co.com.technicaltest.jpa.mapper.Mapper;
 import co.com.technicaltest.jpa.repository.AccountRepository;
 import co.com.technicaltest.jpa.repository.TransferOperationRepository;
+import co.com.technicaltest.jpa.util.Constants;
 import co.com.technicaltest.model.account.transferOperations.TransferOperationHistoryPage;
 import co.com.technicaltest.model.config.BankAccountErrorCode;
 import co.com.technicaltest.model.config.BankAccountException;
@@ -18,6 +19,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+
+import java.awt.*;
 
 @Service
 @RequiredArgsConstructor
@@ -35,13 +38,13 @@ public class TransferFoundsService implements TransferFoundsGateway {
         if(transferOperation.getOriginAccount() != null) {
             originAccount = accountRepository.findAccountEntityByAccountNumber(transferOperation.getOriginAccount())
                     .orElseThrow(() -> new BankAccountException(HttpStatus.NOT_FOUND.value(), BankAccountErrorCode.BCB00.getErrorCode(),
-                            BankAccountErrorCode.BCB00.getErrorTitle(), "Origin account does not exist"));
+                            BankAccountErrorCode.BCB00.getErrorTitle(), Constants.ORIGIN_ACCOUNT_DOES_NOT_EXIST));
         }
 
         if(transferOperation.getDestinationAccount() != null) {
             destinationAccount = accountRepository.findAccountEntityByAccountNumber(transferOperation.getDestinationAccount())
                     .orElseThrow(() -> new BankAccountException(HttpStatus.NOT_FOUND.value(), BankAccountErrorCode.BCB00.getErrorCode(),
-                            BankAccountErrorCode.BCB00.getErrorTitle(), "Destination account does not exist"));
+                            BankAccountErrorCode.BCB00.getErrorTitle(), Constants.DESTINATION_ACCOUNT_DOES_NOT_EXIST));
         }
         var transferOperationEntity = mapper.transferOperationDomainToEntity(transferOperation, originAccount,destinationAccount);
         transferOperationRepository.save(transferOperationEntity);

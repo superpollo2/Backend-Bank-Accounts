@@ -1,6 +1,7 @@
 package co.com.technicaltest.config.app;
 
 import co.com.technicaltest.config.pojoerror.Errors;
+import co.com.technicaltest.config.util.Constants;
 import co.com.technicaltest.model.config.BankAccountException;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -34,37 +35,23 @@ public class GlobalErrorHandler {
                 .detail(exception.getMessage())
                 .id(UUID.randomUUID())
                 .build();
-        log.info(errors.getId() + " Error in request " + request.getRequestURI());
+        log.info(errors.getId() + Constants.ERROR_IN_REQUEST + request.getRequestURI());
         return ResponseEntity.status(exception.getStatus()).body(errors);
     }
 
-    @ExceptionHandler({JsonParseException.class, JsonMappingException.class})
-    public ResponseEntity<Errors> handleJsonException(Exception jsonException, HttpServletRequest request) {
-        Errors errors = Errors.builder()
-                .href(request.getRequestURI())
-                .status(HttpStatus.BAD_REQUEST.value())
-                .code("BR-002")
-                .title("JSON format error")
-                .detail("The request body contains an invalid or malformed JSON.")
-                .id(UUID.randomUUID())
-                .build();
-        log.info(errors.getId() + " Error in request " + request.getRequestURI());
-        log.error(errors.getId() + " Error: Invalid JSON - " + jsonException.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
-    }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Errors> handleGeneralException(Exception generalException, HttpServletRequest request) {
         Errors errors = Errors.builder()
                 .href(request.getRequestURI())
                 .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                .code("BR-I00")
-                .title("Internal API Error")
-                .detail("An internal server error occurred. Please try again later.")
+                .code(Constants.ERROR_CODE_BR_I00)
+                .title(Constants.INTERNAL_API_ERROR)
+                .detail(Constants.INTERNAL_SERVER_ERROR_MESSAGE)
                 .id(UUID.randomUUID())
                 .build();
-        log.info(errors.getId() + " Error in request " + request.getRequestURI());
-        log.error(errors.getId() + " Error: Internal exception - " + generalException.getMessage());
+        log.info(errors.getId() + Constants.ERROR_IN_REQUEST + request.getRequestURI());
+        log.error(errors.getId() + Constants.ERROR_INTERNAL_EXCEPTION + generalException.getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errors);
     }
 
@@ -73,13 +60,13 @@ public class GlobalErrorHandler {
         Errors errors = Errors.builder()
                 .href(request.getRequestURI())
                 .status(HttpStatus.BAD_REQUEST.value())
-                .code("BR-002")
-                .title("JSON format error")
-                .detail("The request body contains an invalid or malformed JSON.")
+                .code(Constants.ERROR_CODE_BR_002)
+                .title(Constants.JSON_FORMAT_ERROR)
+                .detail(Constants.INVALID_JSON_BODY)
                 .id(UUID.randomUUID())
                 .build();
-        log.info(errors.getId() + " Error in request " + request.getRequestURI());
-        log.error(errors.getId() + " Error: Invalid JSON - " + ex.getMessage());
+        log.info(errors.getId() + Constants.ERROR_IN_REQUEST + request.getRequestURI());
+        log.error(errors.getId() + Constants.ERROR_INVALID_JSON + ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
 }

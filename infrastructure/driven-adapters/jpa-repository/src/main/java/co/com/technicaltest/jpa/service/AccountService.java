@@ -3,6 +3,7 @@ package co.com.technicaltest.jpa.service;
 import co.com.technicaltest.jpa.entity.AccountEntity;
 import co.com.technicaltest.jpa.mapper.Mapper;
 import co.com.technicaltest.jpa.repository.AccountRepository;
+import co.com.technicaltest.jpa.util.Constants;
 import co.com.technicaltest.model.account.Account;
 import co.com.technicaltest.model.account.AccountBalance;
 import co.com.technicaltest.model.account.gateways.AccountGateway;
@@ -28,10 +29,9 @@ public class AccountService implements AccountGateway {
 
     @Override
     public Account createAccount(Account account) {
-        log.info("que putas pasa en esta mierda "+ account.toString());
         if(Boolean.TRUE.equals(accountExist(account.getAccountNumber()))){
             throw new BankAccountException(HttpStatus.CONFLICT.value(), BankAccountErrorCode.BCB00.getErrorCode(),
-                    BankAccountErrorCode.BCB00.getErrorTitle(), "Account already exists"
+                    BankAccountErrorCode.BCB00.getErrorTitle(), Constants.ACCOUNT_ALREADY_EXISTS
             );
         }
         var user = userService.getUser(account.getIdentityDocument());
@@ -42,7 +42,7 @@ public class AccountService implements AccountGateway {
     public AccountBalance getAccountBalance(String accountNumber) {
         var originAccount = accountRepository.findAccountEntityByAccountNumber(accountNumber).orElseThrow( () ->
                 new BankAccountException(HttpStatus.NOT_FOUND.value(), BankAccountErrorCode.BCB00.getErrorCode(),
-                        BankAccountErrorCode.BCB00.getErrorTitle(), "Account not found"));
+                        BankAccountErrorCode.BCB00.getErrorTitle(), Constants.ACCOUNT_DOES_NOT_EXIST));
         return mapper.accountEntityToBalanceDomain(originAccount);
     }
 
@@ -54,11 +54,11 @@ public class AccountService implements AccountGateway {
 
         var originAccount = accountRepository.findAccountEntityByAccountNumber(originAccountNumber)
                 .orElseThrow(() -> new BankAccountException(HttpStatus.NOT_FOUND.value(), BankAccountErrorCode.BCB00.getErrorCode(),
-                        BankAccountErrorCode.BCB00.getErrorTitle(), "Origin account does not exist"));
+                        BankAccountErrorCode.BCB00.getErrorTitle(), Constants.ORIGIN_ACCOUNT_DOES_NOT_EXIST));
 
         var destinationAccount = accountRepository.findAccountEntityByAccountNumber(destinationAccountNumber)
                 .orElseThrow(() -> new BankAccountException(HttpStatus.NOT_FOUND.value(), BankAccountErrorCode.BCB00.getErrorCode(),
-                        BankAccountErrorCode.BCB00.getErrorTitle(), "Destination account does not exist"));
+                        BankAccountErrorCode.BCB00.getErrorTitle(), Constants.DESTINATION_ACCOUNT_DOES_NOT_EXIST));
 
         validateSufficientFunds(originAccount, amount);
 
@@ -80,7 +80,7 @@ public class AccountService implements AccountGateway {
 
         var originAccount = accountRepository.findAccountEntityByAccountNumber(accountNumber)
                 .orElseThrow(() -> new BankAccountException(HttpStatus.NOT_FOUND.value(), BankAccountErrorCode.BCB00.getErrorCode(),
-                        BankAccountErrorCode.BCB00.getErrorTitle(), "Account does not exist"));
+                        BankAccountErrorCode.BCB00.getErrorTitle(), Constants.ACCOUNT_DOES_NOT_EXIST));
 
         originAccount.setBalance(originAccount.getBalance().add(amount));
 
@@ -96,7 +96,7 @@ public class AccountService implements AccountGateway {
 
         var originAccount = accountRepository.findAccountEntityByAccountNumber(accountNumber)
                 .orElseThrow(() -> new BankAccountException(HttpStatus.NOT_FOUND.value(), BankAccountErrorCode.BCB00.getErrorCode(),
-                        BankAccountErrorCode.BCB00.getErrorTitle(), "Account does not exist"));
+                        BankAccountErrorCode.BCB00.getErrorTitle(), Constants.ACCOUNT_DOES_NOT_EXIST));
 
         validateSufficientFunds(originAccount, amount);
         originAccount.setBalance(originAccount.getBalance().subtract(amount));
@@ -109,7 +109,7 @@ public class AccountService implements AccountGateway {
     private void validateSufficientFunds(AccountEntity account, BigDecimal amount) {
         if (account.getBalance().compareTo(amount) < 0) {
             throw new BankAccountException(HttpStatus.BAD_REQUEST.value(), BankAccountErrorCode.BCB03.getErrorCode(),
-                    BankAccountErrorCode.BCB03.getErrorTitle(), "Insufficient funds in account " + account.getAccountNumber());
+                    BankAccountErrorCode.BCB03.getErrorTitle(), Constants.INSUFFICIENT_FUNDS_IN_ACCOUNT + account.getAccountNumber());
         }
     }
 
