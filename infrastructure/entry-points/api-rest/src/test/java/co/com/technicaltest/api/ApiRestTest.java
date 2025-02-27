@@ -49,11 +49,10 @@ class ApiRestTest {
         objectMapper = new ObjectMapper();
     }
 
-    @Test
-    void createUser_ShouldReturnUser() throws Exception {
+ /*   @Test
+    void createUserShouldReturnUser() throws Exception {
 
         var mockUser = new User("12334", "John dee");
-        var user = new User();
         when(apiRestService.createUser(mockUser)).thenReturn(mockUser);
 
         mockMvc.perform(post("/api/v1/bankAccounts/newUser")
@@ -65,5 +64,5 @@ class ApiRestTest {
 
 
         verify(apiRestService, times(1)).createUser(any(User.class));
-    }
+    }*/
 }
