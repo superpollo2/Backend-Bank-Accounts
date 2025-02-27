@@ -6,7 +6,7 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class Constants {
 
-    public static final String PRINCIPAL_PATH = "bankAccounts/";
+    public static final String PRINCIPAL_PATH = "/api/v1/bankAccounts/";
     public static final String NEW_USER = "newUser";
     public static final String NEW_ACCOUNT = "newAccount";
     public static final String CHECK_BALANCE = "checkBalance/{accountNumber}";

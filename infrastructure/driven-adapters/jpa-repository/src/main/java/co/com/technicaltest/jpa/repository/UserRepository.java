@@ -13,4 +13,5 @@ import java.util.UUID;
 @Repository
 public interface UserRepository extends CrudRepository<UserEntity, UUID>, QueryByExampleExecutor<UserEntity> {
     Optional<UserEntity> findUserEntityByIdentityDocument(String identityDocument);
+    Boolean existsUserEntityByIdentityDocument(String identifyDocument);
 }

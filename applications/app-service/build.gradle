@@ -12,6 +12,7 @@ dependencies {
     testImplementation 'com.fasterxml.jackson.core:jackson-databind'
     implementation 'org.reactivecommons.utils:object-mapper:0.1.0'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    compileOnly group: 'jakarta.servlet', name: 'jakarta.servlet-api', version: '6.1.0'
     implementation group: 'org.springframework.data', name: 'spring-data-commons', version: '4.0.0-M1'
 }
 

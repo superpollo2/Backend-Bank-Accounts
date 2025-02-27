@@ -22,7 +22,7 @@ import java.util.Random;
 public class AccountUseCase {
 
     private static final BigDecimal MINIMUM_BALANCE = new BigDecimal("200000");
-    private static final Integer NOT_FOUND_CODE = 404;
+    private static final Integer BAD_REQUEST= 400;
     private final AccountGateway accountGateway;
     private final TransferFoundsGateway transferFoundsGateway;
     private static final Random RANDOM = new Random();
@@ -33,7 +33,7 @@ public class AccountUseCase {
                 .originAccount(transferFunds.getOriginAccount())
                 .amount(transferFunds.getAmount())
                 .destinationAccount(transferFunds.getDestinationAccount())
-                .transactionType(TransactionType.TRANSFERENCIA)
+                .transactionType(TransactionType.TRANSFER)
                 .build();
         transferFoundsGateway.registerTransferOperation(transferOperation);
         return updateBalance;
@@ -44,7 +44,7 @@ public class AccountUseCase {
         var transferOperation = TransferOperation.builder()
                 .originAccount(withdrawalsFunds.getAccountNumber())
                 .amount(withdrawalsFunds.getAmount())
-                .transactionType(TransactionType.RETIRO)
+                .transactionType(TransactionType.WITHDRAWAL)
                 .build();
         transferFoundsGateway.registerTransferOperation(transferOperation);
         return updateBalance;
@@ -55,7 +55,7 @@ public class AccountUseCase {
         var transferOperation = TransferOperation.builder()
                 .originAccount(depositFunds.getAccountNumber())
                 .amount(depositFunds.getAmount())
-                .transactionType(TransactionType.DEPOSITO)
+                .transactionType(TransactionType.DEPOSIT)
                 .build();
         transferFoundsGateway.registerTransferOperation(transferOperation);
         return updateBalance;
@@ -67,8 +67,8 @@ public class AccountUseCase {
 
     public Account createAccount(NewAccount newAccount){
         if (newAccount.getBalance().compareTo(MINIMUM_BALANCE) < 0) {
-            throw new BankAccountException(NOT_FOUND_CODE, BankAccountErrorCode.BCB00.getErrorCode(),
-                    BankAccountErrorCode.BCB00.getErrorTitle(), "Initial balance cannot be less than " + MINIMUM_BALANCE);
+            throw new BankAccountException(BAD_REQUEST, BankAccountErrorCode.BCB01.getErrorCode(),
+                    BankAccountErrorCode.BCB01.getErrorTitle(), "Initial balance cannot be less than " + MINIMUM_BALANCE);
         }
 
         var account = Account.builder()

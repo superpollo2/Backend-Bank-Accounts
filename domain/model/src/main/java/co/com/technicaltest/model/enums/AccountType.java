@@ -6,14 +6,13 @@ import lombok.Getter;
 @Getter
 public enum AccountType {
 
-    AHORRO("cuenta ahorros","CH"),
-    CORRIENTE("cuenta corriente","CC");
+    SAVINGS( "SA"),
+    CURRENT( "CU");
 
-    private String accountName;
     private String accountType;
 
-    AccountType(String accountType, String accountName) {
+    AccountType(String accountType) {
         this.accountType = accountType;
-        this.accountName = accountName;
+
     }
 }

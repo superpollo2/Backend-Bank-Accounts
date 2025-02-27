@@ -15,68 +15,66 @@ import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
+import jakarta.servlet.http.HttpServletRequest;
+
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.util.UUID;
 
+@RestControllerAdvice
 @RequiredArgsConstructor
-@Configuration
 @Log4j2
-@Order(-2)
-public class GlobalErrorHandler implements ErrorWebExceptionHandler {
-    private final ObjectMapper objectMapper;
-    DataBuffer dataBuffer = null;
+public class GlobalErrorHandler {
 
-    @SneakyThrows
-    @Override
-    public Mono<Void> handle(ServerWebExchange exchange, Throwable ex) {
-        exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
-        var request = exchange.getRequest();
-        DataBufferFactory bufferFactory = exchange.getResponse().bufferFactory();
-        try {
-            throw ex;
-        }catch (BankAccountException exception){
-            exchange.getResponse().setStatusCode(HttpStatusCode.valueOf(exception.getStatus()));
-            var errors = Errors.builder()
-                    .href(request.getURI().toString())
-                    .status(exception.getStatus())
-                    .code(exception.getCode())
-                    .title(exception.getTitle())
-                    .detail(exception.getMessage())
-                    .id(UUID.randomUUID())
-                    .build();
-            dataBuffer = bufferFactory.wrap(objectMapper.writeValueAsBytes(errors));
-            log.info(errors.getId() + " Error en la solicitud " + exchange.getRequest().toString() );
-        }catch (JsonParseException | JsonMappingException jsonException) {
-            exchange.getResponse().setStatusCode(HttpStatus.BAD_REQUEST);
-            Errors errors = Errors.builder()
-                    .href(request.getURI().toString())
-                    .status(HttpStatus.BAD_REQUEST.value())
-                    .code("CR002")
-                    .title("Error en el formato del JSON")
-                    .detail("El cuerpo de la solicitud contiene un JSON inválido o mal formado.")
-                    .id(UUID.randomUUID())
-                    .build();
-            dataBuffer = bufferFactory.wrap(objectMapper.writeValueAsBytes(errors));
-            log.info(errors.getId() + " Error en la solicitud " + exchange.getRequest().toString());
-            log.error(errors.getId() + " Error: JSON inválido - " + jsonException.getMessage());
-        } catch (Exception generalException) {
-            exchange.getResponse().setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
-            Errors errors = Errors.builder()
-                    .href(request.getURI().toString())
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                    .code("CR-I00")
-                    .title("Error Interno de la API")
-                    .detail("Ocurrió un error interno en el servidor. Por favor, intente más tarde.")
-                    .id(UUID.randomUUID())
-                    .build();
-            dataBuffer = bufferFactory.wrap(objectMapper.writeValueAsBytes(errors));
-            log.info(errors.getId() + " Error en la solicitud " + exchange.getRequest().toString());
-            log.error(errors.getId() + " Error: Excepción interna - " + generalException.getMessage());
-        }
-        return exchange.getResponse().writeWith(Mono.just(dataBuffer));
+    private final ObjectMapper objectMapper;
+
+    @ExceptionHandler(BankAccountException.class)
+    public ResponseEntity<Errors> handleBankAccountException(BankAccountException exception, HttpServletRequest request) {
+        Errors errors = Errors.builder()
+                .href(request.getRequestURI())
+                .status(exception.getStatus())
+                .code(exception.getCode())
+                .title(exception.getTitle())
+                .detail(exception.getMessage())
+                .id(UUID.randomUUID())
+                .build();
+        log.info(errors.getId() + " Error en la solicitud " + request.getRequestURI());
+        return ResponseEntity.status(exception.getStatus()).body(errors);
     }
 
+    @ExceptionHandler({JsonParseException.class, JsonMappingException.class})
+    public ResponseEntity<Errors> handleJsonException(Exception jsonException, HttpServletRequest request) {
+        Errors errors = Errors.builder()
+                .href(request.getRequestURI())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .code("CR002")
+                .title("Error en el formato del JSON")
+                .detail("El cuerpo de la solicitud contiene un JSON inválido o mal formado.")
+                .id(UUID.randomUUID())
+                .build();
+        log.info(errors.getId() + " Error en la solicitud " + request.getRequestURI());
+        log.error(errors.getId() + " Error: JSON inválido - " + jsonException.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Errors> handleGeneralException(Exception generalException, HttpServletRequest request) {
+        Errors errors = Errors.builder()
+                .href(request.getRequestURI())
+                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .code("CR-I00")
+                .title("Error Interno de la API")
+                .detail("Ocurrió un error interno en el servidor. Por favor, intente más tarde.")
+                .id(UUID.randomUUID())
+                .build();
+        log.info(errors.getId() + " Error en la solicitud " + request.getRequestURI());
+        log.error(errors.getId() + " Error: Excepción interna - " + generalException.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errors);
+    }
 }
+

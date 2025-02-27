@@ -28,7 +28,7 @@ public class ApiRest {
     private final ApiRestService apiRestService;
 
     @PostMapping(path = Constants.NEW_USER)
-    public User createUser(User user){
+    public User createUser(@RequestBody User user){
         var startTime = LocalDateTime.now();
         log.info("Starting request to create user");
         try {
@@ -41,7 +41,7 @@ public class ApiRest {
     }
 
     @PostMapping(path = Constants.NEW_ACCOUNT)
-    public Account createAccount(NewAccount newAccount){
+    public Account createAccount(@RequestBody NewAccount newAccount){
         var startTime = LocalDateTime.now();
         log.info("Starting request to create acoount");
         try {
@@ -54,7 +54,7 @@ public class ApiRest {
     }
 
     @PostMapping(path = Constants.TRANSFERS)
-    public AccountBalance transferMoney(TransferFunds transferFunds){
+    public AccountBalance transferMoney(@RequestBody TransferFunds transferFunds){
         var startTime = LocalDateTime.now();
         log.info("Starting request to transfer money");
         try {
@@ -66,7 +66,7 @@ public class ApiRest {
     }
 
     @PostMapping(path = Constants.WITHDRAWALS)
-    public AccountBalance withdrawalMoney(WithdrawalsFunds withdrawalsFunds){
+    public AccountBalance withdrawalMoney(@RequestBody WithdrawalsFunds withdrawalsFunds){
         var startTime = LocalDateTime.now();
         log.info("Starting request to withdrawal money");
         try {
@@ -78,7 +78,7 @@ public class ApiRest {
     }
 
     @PostMapping(path = Constants.DEPOSIT)
-    public AccountBalance depositMoney(WithdrawalsFunds depositFunds){
+    public AccountBalance depositMoney(@RequestBody WithdrawalsFunds depositFunds){
         var startTime = LocalDateTime.now();
         log.info("Starting request to deposit money");
         try {
@@ -103,7 +103,7 @@ public class ApiRest {
     }
 
     @GetMapping(path = Constants.HISTORICAL_RECORDS_TRANSFERS)
-    public PaginatedResult<TransferOperation> historicalTransferOperations(TransferOperationHistoryPage transferOperationHistoryPage){
+    public PaginatedResult<TransferOperation> historicalTransferOperations(@RequestBody TransferOperationHistoryPage transferOperationHistoryPage){
         var startTime = LocalDateTime.now();
         log.info("Starting request to get historical record of tranfers");
         try {

@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +21,11 @@ public class UserService implements UserGateway {
 
     @Override
     public User createUser(User user) {
+        if(Boolean.TRUE.equals(userExist(user.getIdentityDocument()))){
+            throw new BankAccountException(HttpStatus.CONFLICT.value(), BankAccountErrorCode.BCB00.getErrorCode(),
+                    BankAccountErrorCode.BCB00.getErrorTitle(), "User already exists"
+            );
+        }
         return mapper.UserEntityToDomain(
                 userRepository.save(mapper.UserDomainToEntity(user))
         );
@@ -31,6 +35,10 @@ public class UserService implements UserGateway {
         return userRepository.findUserEntityByIdentityDocument(identityDocument).orElseThrow(() ->
                 new BankAccountException(HttpStatus.NOT_FOUND.value(), BankAccountErrorCode.BCB00.getErrorCode(),
                         BankAccountErrorCode.BCB00.getErrorTitle(), "User not found"));
+    }
+
+    private Boolean userExist(String identityDocument){
+        return userRepository.existsUserEntityByIdentityDocument(identityDocument);
     }
 
 }

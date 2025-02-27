@@ -26,6 +26,11 @@ public class AccountService implements AccountGateway {
 
     @Override
     public Account createAccount(Account account) {
+        if(Boolean.TRUE.equals(accountExist(account.getAccountNumber()))){
+            throw new BankAccountException(HttpStatus.CONFLICT.value(), BankAccountErrorCode.BCB00.getErrorCode(),
+                    BankAccountErrorCode.BCB00.getErrorTitle(), "Account already exists"
+            );
+        }
         var user = userService.getUser(account.getIdentityDocument());
         return mapper.accountEntityToDomain(accountRepository.save(mapper.accountDomainToEntity(account, user)));
     }
@@ -103,6 +108,10 @@ public class AccountService implements AccountGateway {
             throw new BankAccountException(HttpStatus.BAD_REQUEST.value(), BankAccountErrorCode.BCB03.getErrorCode(),
                     BankAccountErrorCode.BCB03.getErrorTitle(), "Insufficient funds in account " + account.getAccountNumber());
         }
+    }
+
+    private Boolean accountExist(String accountNumber){
+        return accountRepository.existsAccountEntityByAccountNumber(accountNumber);
     }
 
 
